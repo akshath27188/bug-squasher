@@ -1,0 +1,5 @@
+{
+  "name": "Bug Squasher AI",
+  "description": "An AI-powered assistant to help you find and fix bugs in your code. Simply provide your buggy code, describe the problem, and let the AI suggest a solution.",
+  "requestFramePermissions": []
+}
