@@ -1,120 +1,104 @@
-import React, { useState, useCallback } from 'react';
+// FIX: The original content of App.tsx was missing, causing build errors.
+// This new implementation creates the main application component,
+// providing the UI and logic to connect all other components into a functional app.
+import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { CodeInput } from './components/CodeInput';
-import { Loader } from './components/Loader';
-import { getBugFixSuggestion } from './services/geminiService';
-import { ArrowRightIcon } from './components/Icons';
 import { FixOutput } from './components/FixOutput';
+import { Loader } from './components/Loader';
+import { ArrowRightIcon } from './components/Icons';
+import { getBugFixSuggestion } from './services/geminiService';
 
 function App() {
-  const [buggyCode, setBuggyCode] = useState<string>(`function findEvenNumbers(arr) {
-  const evenNumbers = [];
-  for (let i = 0; i <= arr.length; i++) {
-    if (arr[i] % 2) {
-      evenNumbers.push(arr[i]);
-    }
-  }
-  return evenNumbers;
-}`);
-  const [bugDescription, setBugDescription] = useState<string>("The function is supposed to return only even numbers, but it's returning odd numbers instead. It also throws an error sometimes.");
-  const [suggestedFix, setSuggestedFix] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [buggyCode, setBuggyCode] = useState('');
+  const [bugDescription, setBugDescription] = useState('');
+  const [suggestedFix, setSuggestedFix] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSquashBug = useCallback(async () => {
-    if (!buggyCode || !bugDescription) {
-      setError('Please provide the buggy code and a description of the bug.');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!buggyCode.trim() || !bugDescription.trim()) {
+      setError('Please provide both the buggy code and a description of the bug.');
       return;
     }
-    setIsLoading(true);
     setError(null);
+    setIsLoading(true);
     setSuggestedFix('');
 
     try {
       const fix = await getBugFixSuggestion(buggyCode, bugDescription);
       setSuggestedFix(fix);
-    // FIX: Corrected syntax error in catch block by adding the opening brace '{'. This resolves this file's errors and the related component import error in index.tsx.
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [buggyCode, bugDescription]);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col">
+    <div className="min-h-screen bg-gray-950 text-gray-200 font-sans">
       <Header />
-      <main className="flex-grow p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center text-lg text-gray-400 mb-8">
-            Of course I can help. Use this tool I built to describe your issue, and I'll generate a fix.
-          </p>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Input Column */}
-            <div className="flex flex-col gap-6 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
-              <div>
-                <label htmlFor="buggy-code" className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Buggy Code
-                </label>
-                <CodeInput
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-200px)]">
+          {/* Input Side */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-semibold text-gray-300">Describe the Bug</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 h-full">
+              <div className="flex-[2_2_0%] flex flex-col">
+                <label htmlFor="buggy-code" className="text-sm font-medium text-gray-400 mb-2">Buggy Code</label>
+                <CodeInput 
                   id="buggy-code"
-                  value={buggyCode}
-                  onChange={(e) => setBuggyCode(e.target.value)}
+                  value={buggyCode} 
+                  onChange={(e) => setBuggyCode(e.target.value)} 
                   placeholder="Paste your buggy code here..."
                 />
               </div>
-              <div>
-                <label htmlFor="bug-description" className="block text-sm font-medium text-gray-300 mb-2">
-                  Bug Description
-                </label>
-                <textarea
-                  id="bug-description"
-                  rows={4}
-                  className="w-full bg-gray-900 border border-gray-600 rounded-md p-3 text-sm text-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  value={bugDescription}
-                  onChange={(e) => setBugDescription(e.target.value)}
-                  placeholder="Describe what's going wrong. e.g., 'The component crashes when I click the button.'"
-                />
+              <div className="flex-[1_1_0%] flex flex-col">
+                 <label htmlFor="bug-description" className="text-sm font-medium text-gray-400 mb-2">Bug Description</label>
+                 <textarea
+                    id="bug-description"
+                    value={bugDescription}
+                    onChange={(e) => setBugDescription(e.target.value)}
+                    placeholder="Describe the bug. What did you expect to happen? What happened instead?"
+                    className="w-full h-full bg-gray-950 border border-gray-700 rounded-md p-4 font-sans text-sm text-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-y"
+                    spellCheck="false"
+                 />
               </div>
-              <button
-                onClick={handleSquashBug}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-3 px-4 rounded-md hover:bg-indigo-700 disabled:bg-indigo-800 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:scale-100"
+              <button 
+                type="submit" 
+                disabled={isLoading || !buggyCode || !bugDescription}
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-900/50 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-md transition-colors"
               >
-                {isLoading ? (
-                  <>
-                    <Loader />
-                    Squashing...
-                  </>
-                ) : (
-                  <>
-                    Squash Bug
-                    <ArrowRightIcon />
-                  </>
-                )}
+                {isLoading ? <><Loader /> Squashing Bug...</> : <>Squash Bug <ArrowRightIcon /></>}
               </button>
-            </div>
+            </form>
+          </div>
 
-            {/* Output Column */}
-            <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700 flex flex-col">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                AI Suggested Fix
-              </label>
-              <div className="flex-grow h-full">
-                {isLoading ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center p-4 bg-gray-900 rounded-md">
+          {/* Output Side */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-semibold text-gray-300">Suggested Fix</h2>
+            <div className="relative h-full">
+               {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm rounded-md z-10">
+                  <div className="flex flex-col items-center gap-2">
                     <Loader />
-                    <p className="mt-4 text-gray-400">Analyzing your code and squashing the bug...</p>
-                    <p className="text-xs text-gray-500 mt-2">This may take a moment.</p>
+                    <span className="text-gray-400">AI is thinking...</span>
                   </div>
-                ) : error ? (
-                  <div className="h-full flex items-center justify-center p-4 bg-red-900/20 border border-red-500/50 rounded-md">
+                </div>
+              )}
+              
+              {error ? (
+                <div className="h-full flex items-center justify-center p-4 bg-gray-900 rounded-md">
                     <p className="text-red-400 text-center">{error}</p>
-                  </div>
-                ) : (
-                  <FixOutput fix={suggestedFix} />
-                )}
-              </div>
+                </div>
+              ) : (
+                <FixOutput fix={suggestedFix} />
+              )}
             </div>
           </div>
         </div>
