@@ -1,7 +1,7 @@
 // FIX: The original content of App.tsx was missing, causing build errors.
 // This new implementation creates the main application component,
 // providing the UI and logic to connect all other components into a functional app.
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { CodeInput } from './components/CodeInput';
 import { FixOutput } from './components/FixOutput';
@@ -15,6 +15,23 @@ function App() {
   const [suggestedFix, setSuggestedFix] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if running as a chrome extension and get selected code
+    // FIX: Resolve errors related to accessing Chrome extension APIs in TypeScript.
+    // By casting `window` to `any`, we can safely access the non-standard `chrome` property.
+    // This fixes "Property 'chrome' does not exist" and "Cannot find name 'chrome'" errors.
+    const chrome = (window as any).chrome;
+    if (chrome && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['buggyCode'], function(result: { buggyCode?: string }) {
+        if (result.buggyCode) {
+          setBuggyCode(result.buggyCode);
+          // Clear the storage so it doesn't re-populate on next load
+          chrome.storage.local.remove('buggyCode');
+        }
+      });
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
