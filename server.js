@@ -1,7 +1,7 @@
-
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs'); // Import the file system module
 const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
@@ -9,6 +9,35 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json()); // To parse JSON bodies
+
+// --- Start of Fix ---
+// This custom middleware is crucial for our no-bundler React setup.
+// Browser 'import' statements might request '/App' instead of '/App.js'.
+// This middleware checks if a .js file exists for such requests and rewrites the URL.
+// This ensures that our Express server sends JavaScript files with the correct
+// 'application/javascript' MIME type, instead of falling back to sending 'index.html'
+// which causes the "disallowed MIME type" error.
+app.use((req, res, next) => {
+  const reqPath = req.path;
+  // If the path already has an extension, or is an API call, do nothing.
+  if (path.extname(reqPath) || reqPath.startsWith('/api/')) {
+    return next();
+  }
+
+  const filePath = path.join(__dirname, reqPath + '.js');
+  // Check if the corresponding .js file exists
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      // File doesn't exist, proceed to other routes (like the SPA fallback)
+      return next();
+    }
+    // File exists, rewrite the URL to include the .js extension
+    req.url += '.js';
+    next();
+  });
+});
+// --- End of Fix ---
+
 app.use(express.static(__dirname)); // Serve static files
 
 // Check for API Key and initialize Gemini
