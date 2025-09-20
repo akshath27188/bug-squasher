@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 
 if (!process.env.API_KEY) {
@@ -44,7 +43,13 @@ ${bugDescription}
       }
     });
 
-    return response.text;
+    const text = response.text;
+    if (text) {
+      return text;
+    } else {
+      // Handle cases where the response might be blocked or empty
+      throw new Error("The AI did not return a valid suggestion. The response may have been blocked due to safety settings.");
+    }
   } catch (error) {
     console.error("Error calling Gemini API:", error);
     if (error instanceof Error) {
