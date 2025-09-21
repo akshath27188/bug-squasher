@@ -99,10 +99,28 @@ ${bugDescription}
   }
 });
 
-// Explicitly handle the /ads.txt route
+// Explicitly handle SEO and Ad files
 app.get('/ads.txt', (req, res) => {
   res.sendFile(path.join(__dirname, 'ads.txt'));
 });
+
+app.get('/sitemap.xml', (req, res) => {
+    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://bugsquasher.online/</loc>
+    <lastmod>2024-05-21</lastmod>
+    <priority>1.0</priority>
+  </url>
+</urlset>`;
+    res.header('Content-Type', 'application/xml');
+    res.send(sitemapContent);
+});
+
+app.get('/robots.txt', (req, res) => {
+    res.sendFile(path.join(__dirname, 'robots.txt'));
+});
+
 
 // For any other route, serve the index.html file for the React SPA
 // This should be the last route.

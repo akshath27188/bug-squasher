@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bugsquasher.online/sitemap.xml
