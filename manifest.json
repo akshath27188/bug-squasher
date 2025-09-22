@@ -25,5 +25,5 @@
     },
     "default_title": "Bug Squasher AI"
   },
-  "content_security_policy": "script-src 'self' 'sha256-NigSwmMzIeA2XXtFG8JwBcz1XqLN5WwU649jkiiNzcg=' https://cdn.tailwindcss.com https://pagead2.googlesyndication.com https://aistudiocdn.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'sha256-NigSwmMzIeA2XXtFG8JwBcz1XqLN5WwU649jkiiNzcg=' https://cdn.tailwindcss.com https://aistudiocdn.com https://*.googlesyndication.com https://*.google.com; object-src 'self'"
 }

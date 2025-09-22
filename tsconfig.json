@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "ES2015",
     "lib": ["DOM", "ESNext"],
     "jsx": "react-jsx",
     "strict": true,
-    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
