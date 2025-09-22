@@ -31,7 +31,7 @@ app.use((req, res, next) => {
     return next();
   }
 
-  const filePath = path.join(__dirname, reqPath + '.js');
+  const filePath = path.join(__dirname, 'dist', reqPath + '.js');
   // Check if the corresponding .js file exists
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 });
 // --- End of Fix ---
 
-app.use(express.static(__dirname)); // Serve static files
+app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
 
 // Check for API Key and initialize Gemini
 if (!process.env.API_KEY) {
@@ -108,7 +108,7 @@ ${bugDescription}
 
 // Explicitly handle SEO and Ad files
 app.get('/ads.txt', (req, res) => {
-  res.sendFile(path.join(__dirname, 'ads.txt'));
+  res.sendFile(path.join(__dirname, 'dist', 'ads.txt'));
 });
 
 app.get('/sitemap.xml', (req, res) => {
@@ -125,14 +125,14 @@ app.get('/sitemap.xml', (req, res) => {
 });
 
 app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.join(__dirname, 'robots.txt'));
+    res.sendFile(path.join(__dirname, 'dist', 'robots.txt'));
 });
 
 
 // For any other route, serve the index.html file for the React SPA
 // This should be the last route.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {

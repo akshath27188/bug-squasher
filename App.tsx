@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Header } from './components/Header.js';
-import { CodeInput } from './components/CodeInput.js';
-import { FixOutput } from './components/FixOutput.js';
-import { Loader } from './components/Loader.js';
-import { ArrowRightIcon } from './components/Icons.js';
-import { AdBanner } from './components/AdBanner.js';
-import { getBugFixSuggestion } from './services/geminiService.js';
+import { Header } from './components/Header';
+import { CodeInput } from './components/CodeInput';
+import { FixOutput } from './components/FixOutput';
+import { Loader } from './components/Loader';
+import { ArrowRightIcon } from './components/Icons';
+import { AdBanner } from './components/AdBanner';
+import { getBugFixSuggestion } from './services/geminiService';
 
 function App() {
   const [buggyCode, setBuggyCode] = useState('');

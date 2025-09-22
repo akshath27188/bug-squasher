@@ -7,8 +7,13 @@
   "scripts": {
     "//": "Use 'npm start' to run the backend server locally for testing.",
     "start": "node server.js",
-    "//": "IMPORTANT: Run 'npm run build' after ANY change to .ts/.tsx files to compile them into JavaScript for the extension.",
-    "build": "tsc --project tsconfig.json"
+    "//": "Use 'npm run dev' to run the frontend development server with Vite.",
+    "dev": "vite",
+    "//": "IMPORTANT: Run 'npm run build' to compile and bundle the extension into the '/dist' folder.",
+    "build": "npm run clean && tsc && npm run build:vite && npm run copy-files",
+    "build:vite": "vite build",
+    "copy-files": "copyfiles -u 1 manifest.json background.js ads.txt \"icons/**/*\" dist",
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -19,6 +24,13 @@
     "typescript": "^5.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "vite": "^5.3.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "tailwindcss": "^3.4.4",
+    "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.19",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^5.0.7"
   }
 }

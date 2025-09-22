@@ -9,15 +9,13 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ES2022",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false,
-    "jsx": "react-jsx",
-    "outDir": "./",
-    "rootDir": "./"
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "server.js", "vite.config.ts"]
+  "exclude": ["node_modules", "server.js", "dist"]
 }
