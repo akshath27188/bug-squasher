@@ -5,11 +5,16 @@
 // This server should be deployed to a service like Google Cloud Run.
 // ====================================================================================
 
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
-const fs = require('fs'); // Import the file system module
-const { GoogleGenAI } = require('@google/genai');
+import 'dotenv/config';
+import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { GoogleGenAI } from '@google/genai';
+
+// ES Module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8080;

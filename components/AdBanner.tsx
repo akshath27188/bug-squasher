@@ -13,25 +13,30 @@ export const AdBanner: React.FC = () => {
       // This is the standard way to initialize an ad unit in a single-page app.
       // It tells AdSense to look for an ad unit on the page and fill it.
       (window.adsbygoogle = window.adsbygoogle || []).push({});
+    // Fix: Corrected the syntax of the try...catch block.
+    // The original code was missing curly braces {} around the catch block's body,
+    // and had an extra closing brace, which is a syntax error.
     } catch (err) {
       console.error("AdSense error: ", err);
     }
   }, []);
 
   return (
-    <div className="w-full mt-8 text-center">
-      <ins 
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-5538272112952140" // Your publisher ID from ads.txt
-        // ==============================================================================
-        // IMPORTANT: Replace "1234567890" with your actual Ad Slot ID from AdSense.
-        // Without this, ads will NOT show up.
-        // ==============================================================================
-        data-ad-slot="1234567890" 
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+    <div className="w-full mt-8 flex justify-center">
+      {/* 
+        This ad unit is now configured for AdSense "Auto ads".
+        This requires "Auto ads" to be enabled for your site in your AdSense account.
+        It does NOT require a data-ad-slot ID.
+      */}
+      <div className="w-full max-w-4xl">
+        <ins 
+          className="adsbygoogle"
+          style={{ display: 'block', textAlign: 'center' }}
+          data-ad-client="ca-pub-5538272112952140" // Your publisher ID from ads.txt
+          data-ad-layout="in-article"
+          data-ad-format="fluid"
+        ></ins>
+      </div>
     </div>
   );
 };

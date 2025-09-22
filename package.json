@@ -1,15 +1,17 @@
 {
-  "//": "This file configures the Node.js server that acts as the backend for the browser extension.",
   "name": "bug-squasher-ai-server",
   "version": "1.0.0",
   "description": "Server for Bug Squasher AI",
+  "type": "module",
   "main": "server.js",
+  "comments": {
+    "start": "Use 'npm start' to run the backend server locally for testing.",
+    "dev": "Use 'npm run dev' to run the frontend development server with Vite.",
+    "build": "IMPORTANT: Run 'npm run build' to compile and bundle the extension into the '/dist' folder."
+  },
   "scripts": {
-    "//": "Use 'npm start' to run the backend server locally for testing.",
     "start": "node server.js",
-    "//": "Use 'npm run dev' to run the frontend development server with Vite.",
     "dev": "vite",
-    "//": "IMPORTANT: Run 'npm run build' to compile and bundle the extension into the '/dist' folder.",
     "build": "npm run clean && tsc && npm run build:vite && npm run copy-files",
     "build:vite": "vite build",
     "copy-files": "copyfiles -u 1 manifest.json background.js ads.txt \"icons/**/*\" dist",
@@ -18,7 +20,9 @@
   "dependencies": {
     "express": "^4.18.2",
     "@google/genai": "^1.20.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
