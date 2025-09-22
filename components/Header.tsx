@@ -1,9 +1,8 @@
-
 import React from 'react';
 
 export const Header: React.FC = () => {
   return (
-    <header className="py-4 px-4 sm:px-6 lg:px-8 bg-gray-900/60 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-10">
+    <header className="py-4 px-4 sm:px-6 lg:px-8 bg-gray-900/60 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-20">
       <div className="max-w-7xl mx-auto flex items-center justify-center">
         <div className="flex items-center gap-3">
           <img src="/icons/icon.svg" alt="Bug Squasher AI Logo" width="32" height="32" />

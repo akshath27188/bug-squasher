@@ -1,3 +1,10 @@
+// ====================================================================================
+// This is the backend server for the Bug Squasher AI browser extension.
+// It receives requests from the extension, securely adds the secret API key,
+// calls the Google Gemini API, and returns the result.
+// This server should be deployed to a service like Google Cloud Run.
+// ====================================================================================
+
 require('dotenv').config();
 const express = require('express');
 const path = require('path');

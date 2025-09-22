@@ -1,12 +1,10 @@
-// FIX: The original content of App.tsx was missing, causing build errors.
-// This new implementation creates the main application component,
-// providing the UI and logic to connect all other components into a functional app.
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header.js';
 import { CodeInput } from './components/CodeInput.js';
 import { FixOutput } from './components/FixOutput.js';
 import { Loader } from './components/Loader.js';
 import { ArrowRightIcon } from './components/Icons.js';
+import { AdBanner } from './components/AdBanner.js';
 import { getBugFixSuggestion } from './services/geminiService.js';
 
 function App() {
@@ -16,12 +14,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Type assertion for chrome APIs
+  const chrome = (window as any).chrome;
+
   useEffect(() => {
-    // Check if running as a chrome extension and get selected code
-    // FIX: Resolve errors related to accessing Chrome extension APIs in TypeScript.
-    // By casting `window` to `any`, we can safely access the non-standard `chrome` property.
-    // This fixes "Property 'chrome' does not exist" and "Cannot find name 'chrome'" errors.
-    const chrome = (window as any).chrome;
+    // When the app loads, check if there's buggy code passed from the context menu
     if (chrome && chrome.storage && chrome.storage.local) {
       chrome.storage.local.get(['buggyCode'], function(result: { buggyCode?: string }) {
         if (result.buggyCode) {
@@ -31,7 +28,7 @@ function App() {
         }
       });
     }
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +57,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 font-sans">
       <Header />
+      
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-200px)]">
           {/* Input Side */}
@@ -119,6 +117,7 @@ function App() {
             </div>
           </div>
         </div>
+        <AdBanner />
       </main>
     </div>
   );

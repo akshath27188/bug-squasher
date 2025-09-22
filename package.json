@@ -1,5 +1,5 @@
-
 {
+  "//": "This file configures the Node.js server that acts as the backend for the browser extension.",
   "name": "bug-squasher-ai-server",
   "version": "1.0.0",
   "description": "Server for Bug Squasher AI",

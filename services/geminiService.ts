@@ -1,66 +1,45 @@
-import { GoogleGenAI } from "@google/genai";
-
-// This check is for the developer's benefit.
-// In a real extension, the API key would need to be provided securely,
-// possibly through a build-time environment variable replacement.
-if (!process.env.API_KEY) {
-  console.error("API_KEY environment variable is not set. The application will not be able to communicate with the Gemini API.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+// This service now communicates with your backend server, which securely handles the Gemini API key.
+// It no longer requires the user to input their own API key.
 
 export async function getBugFixSuggestion(
   buggyCode: string,
   bugDescription: string
 ): Promise<string> {
-  const prompt = `
-You are an expert software engineer and world-class debugger.
-A user has provided a piece of code with a bug. Your task is to analyze the buggy code and the description of the bug, then provide a corrected version of the code and a brief explanation of the fix.
 
-**Buggy Code:**
-\`\`\`
-${buggyCode}
-\`\`\`
-
-**Bug Description:**
-${bugDescription}
-
----
-
-**Instructions for your response:**
-1. First, provide the corrected and complete code block. Do not add any introductory text like "Here is the corrected code:" before it.
-2. The code block should be enclosed in a single markdown code block (e.g., \`\`\`javascript ... \`\`\`).
-3. After the code block, add a horizontal rule (\`---\`).
-4. After the rule, add a section titled "### Explanation of the fix:"
-5. Under this heading, provide a clear, concise, and friendly explanation of what was wrong and how you fixed it. Use bullet points for clarity.
-`;
+  // IMPORTANT: Replace this with your actual deployed server URL (e.g., your Cloud Run URL)
+  const API_ENDPOINT = 'https://bugsquasher.online/api/get-fix';
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        temperature: 0.2,
-        topP: 0.9,
-        topK: 40,
-      }
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ buggyCode, bugDescription }),
     });
 
-    const text = response.text;
-    if (text) {
-      return text;
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'An unknown server error occurred.' }));
+      // Provide a more specific error message if available from the server
+      throw new Error(`Server error: ${response.status} ${response.statusText}. ${errorData.error || ''}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.fix) {
+      return data.fix;
     } else {
-      throw new Error("The AI did not return a valid suggestion. The response may have been blocked due to safety settings or other issues.");
+      throw new Error("The server did not return a valid suggestion.");
     }
   } catch (error) {
-    console.error("Error calling Gemini API:", error);
+    console.error("Error fetching bug fix from server:", error);
     if (error instanceof Error) {
         // Make the error message more user-friendly
-        if (error.message.includes('API key not valid')) {
-             throw new Error("The Gemini API key is invalid or missing. Please check your configuration.");
+        if (error.message.includes('Failed to fetch')) {
+             throw new Error("Could not connect to the Bug Squasher AI server. Please check your internet connection and the server URL.");
         }
-        throw new Error(`Failed to get suggestion from AI: ${error.message}`);
+        throw new Error(`Failed to get suggestion: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while communicating with the Gemini API.");
+    throw new Error("An unknown error occurred while communicating with the server.");
   }
 }
