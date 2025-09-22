@@ -5,7 +5,9 @@
   "description": "Server for Bug Squasher AI",
   "main": "server.js",
   "scripts": {
+    "//": "Use 'npm start' to run the backend server locally for testing.",
     "start": "node server.js",
+    "//": "IMPORTANT: Run 'npm run build' after ANY change to .ts/.tsx files to compile them into JavaScript for the extension.",
     "build": "tsc --project tsconfig.json"
   },
   "dependencies": {
