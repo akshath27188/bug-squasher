@@ -1,1 +1,25 @@
-full contents of manifest.json
+{
+  "manifest_version": 3,
+  "name": "Bug Squasher AI",
+  "version": "1.0.1",
+  "description": "An AI-powered assistant to help you find and fix bugs in your code. Simply provide your buggy code, describe the problem, and let the AI suggest a solution.",
+  "permissions": [
+    "contextMenus",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://bugsquasher.online/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Bug Squasher AI"
+  },
+  "icons": {
+    "32": "icons/icon.svg"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' https://cdn.tailwindcss.com https://aistudiocdn.com https://pagead2.googlesyndication.com; object-src 'self'; connect-src 'self' https://bugsquasher.online https://*.google.com https://*.googlesyndication.com;"
+  }
+}
