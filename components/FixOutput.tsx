@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { CopyIcon, CheckIcon } from './Icons';
+import { CopyIcon, CheckIcon } from './Icons.js';
 
 interface FixOutputProps {
   fix: string;

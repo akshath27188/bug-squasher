@@ -24,5 +24,6 @@
       "32": "icons/icon.svg"
     },
     "default_title": "Bug Squasher AI"
-  }
+  },
+  "content_security_policy": "script-src 'self' 'sha256-NigSwmMzIeA2XXtFG8JwBcz1XqLN5WwU649jkiiNzcg=' https://cdn.tailwindcss.com https://pagead2.googlesyndication.com https://aistudiocdn.com; object-src 'self'"
 }

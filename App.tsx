@@ -2,12 +2,12 @@
 // This new implementation creates the main application component,
 // providing the UI and logic to connect all other components into a functional app.
 import React, { useState, useEffect } from 'react';
-import { Header } from './components/Header';
-import { CodeInput } from './components/CodeInput';
-import { FixOutput } from './components/FixOutput';
-import { Loader } from './components/Loader';
-import { ArrowRightIcon } from './components/Icons';
-import { getBugFixSuggestion } from './services/geminiService';
+import { Header } from './components/Header.js';
+import { CodeInput } from './components/CodeInput.js';
+import { FixOutput } from './components/FixOutput.js';
+import { Loader } from './components/Loader.js';
+import { ArrowRightIcon } from './components/Icons.js';
+import { getBugFixSuggestion } from './services/geminiService.js';
 
 function App() {
   const [buggyCode, setBuggyCode] = useState('');
