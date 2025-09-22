@@ -20,6 +20,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 // Listener for the extension icon click to open the app
-chrome.action.onClicked.addListener((tab) => {
+chrome.browserAction.onClicked.addListener((tab) => {
     chrome.tabs.create({ url: chrome.runtime.getURL("index.html") });
 });

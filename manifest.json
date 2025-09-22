@@ -1,23 +1,24 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Bug Squasher AI",
   "version": "1.0",
   "description": "Select buggy code on any page, right-click, and get an AI-powered fix.",
   "permissions": [
     "contextMenus",
-    "scripting",
     "activeTab",
-    "storage"
+    "storage",
+    "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"],
+    "persistent": false
   },
   "icons": {
     "16": "icons/icon.svg",
     "48": "icons/icon.svg",
     "128": "icons/icon.svg"
   },
-  "action": {
+  "browser_action": {
     "default_icon": {
       "16": "icons/icon.svg",
       "32": "icons/icon.svg"
