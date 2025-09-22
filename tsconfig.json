@@ -19,5 +19,5 @@
     "rootDir": "./"
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "server.js"]
+  "exclude": ["node_modules", "server.js", "vite.config.ts"]
 }
