@@ -1,145 +1,71 @@
 // ====================================================================================
-// This is the backend server for the Bug Squasher AI browser extension.
-// It receives requests from the extension, securely adds the secret API key,
-// calls the Google Gemini API, and returns the result.
-// This server should be deployed to a service like Google Cloud Run.
+// Bug Squasher AI Backend (Cloud Run)
+// Receives requests from extension/webapp, adds API key securely, calls Gemini API.
 // ====================================================================================
 
 import 'dotenv/config';
 import express from 'express';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 
-// ES Module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
-app.use(express.json()); // To parse JSON bodies
+app.use(express.json());
 
-// --- Start of Fix ---
-// This custom middleware is crucial for our no-bundler React setup.
-// Browser 'import' statements might request '/App' instead of '/App.js'.
-// This middleware checks if a .js file exists for such requests and rewrites the URL.
-// This ensures that our Express server sends JavaScript files with the correct
-// 'application/javascript' MIME type, instead of falling back to sending 'index.html'
-// which causes the "disallowed MIME type" error.
-app.use((req, res, next) => {
-  const reqPath = req.path;
-  // If the path already has an extension, or is an API call, do nothing.
-  if (path.extname(reqPath) || reqPath.startsWith('/api/')) {
-    return next();
-  }
+// --- Serve static frontend (for webapp) ---
+app.use(express.static(path.join(__dirname, 'dist')));
 
-  const filePath = path.join(__dirname, 'dist', reqPath + '.js');
-  // Check if the corresponding .js file exists
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      // File doesn't exist, proceed to other routes (like the SPA fallback)
-      return next();
-    }
-    // File exists, rewrite the URL to include the .js extension
-    req.url += '.js';
-    next();
-  });
-});
-// --- End of Fix ---
-
-app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
-
-// Check for API Key and initialize Gemini
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable is not set");
-}
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-// API endpoint to handle bug fix suggestions
+// --- Gemini API handler ---
 app.post('/api/get-fix', async (req, res) => {
-  const { buggyCode, bugDescription } = req.body;
-
-  if (!buggyCode || !bugDescription) {
-    return res.status(400).json({ error: 'buggyCode and bugDescription are required.' });
-  }
-
-  const prompt = `
-You are an expert software engineer and world-class debugger.
-A user has provided a piece of code with a bug. Your task is to analyze the buggy code and the description of the bug, then provide a corrected version of the code and a brief explanation of the fix.
-
-**Buggy Code:**
-\`\`\`
-${buggyCode}
-\`\`\`
-
-**Bug Description:**
-${bugDescription}
-
----
-
-**Instructions for your response:**
-1. First, provide the corrected and complete code block. Do not add any introductory text like "Here is the corrected code:" before it.
-2. The code block should be enclosed in a single markdown code block (e.g., \`\`\`javascript ... \`\`\`).
-3. After the code block, add a horizontal rule (\`---\`).
-4. After the rule, add a section titled "### Explanation of the fix:"
-5. Under this heading, provide a clear, concise, and friendly explanation of what was wrong and how you fixed it. Use bullet points for clarity.
-`;
-
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        temperature: 0.2,
-        topP: 0.9,
-        topK: 40,
-      }
+    const { buggyCode, bugDescription } = req.body;
+
+    if (!buggyCode) {
+      return res.status(400).json({ error: 'Buggy code is required' });
+    }
+
+    // Initialize SDK (no apiKey here — it picks up GOOGLE_API_KEY from env)
+    const ai = new GoogleGenAI();
+    const model = ai.getGenerativeModel({ model: 'gemini-pro' });
+
+    const prompt = `
+    The user submitted buggy code:
+
+    ${buggyCode}
+
+    Bug description: ${bugDescription || '(none provided)'}
+
+    Please analyze the code, explain the error if any, and suggest a corrected version.
+    `;
+
+    const result = await model.generateContent({
+      contents: [{ parts: [{ text: prompt }] }],
     });
 
-    const text = response.text;
-    if (text) {
-      res.json({ fix: text });
-    } else {
-      res.status(500).json({ error: "The AI did not return a valid suggestion. The response may have been blocked." });
-    }
-  } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    res.status(500).json({ error: 'Failed to get suggestion from AI.' });
+    const text = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text || 
+                 "No suggestion returned from Gemini API.";
+
+    res.json({ suggestion: text });
+
+  } catch (err) {
+    console.error("Error fetching suggestion:", err);
+    res.status(500).json({
+      error: "Failed to get suggestion from AI",
+      details: err.message || err,
+    });
   }
 });
 
-// Explicitly handle SEO and Ad files
-app.get('/ads.txt', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'ads.txt'));
-});
-
-app.get('/sitemap.xml', (req, res) => {
-    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bugsquasher.online/</loc>
-    <lastmod>2024-05-21</lastmod>
-    <priority>1.0</priority>
-  </url>
-</urlset>`;
-    res.header('Content-Type', 'application/xml');
-    res.send(sitemapContent);
-});
-
-app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'robots.txt'));
-});
-
-
-// For any other route, serve the index.html file for the React SPA
-// This should be the last route.
+// --- Catch-all for SPA (for webapp UI) ---
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`Bug Squasher AI server running on port ${PORT}`);
 });
