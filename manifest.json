@@ -8,19 +8,24 @@
     "storage",
     "scripting",
     "activeTab"
-  ],
-  "default_popup": "index.html",
+  ],  
   "host_permissions": [
     "https://bugsquasher.online/"
   ],
   "background": {
-    "scripts": ["background.js"]
-  },
-  "action": {
-    "default_title": "Open Bug Squasher AI"
+    "service_worker": "background.js"
   },
   "icons": {
-    "32": "icons/icon.svg"
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    } 
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://bugsquasher.online https://*.google.com https://*.googlesyndication.com;"
