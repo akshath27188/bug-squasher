@@ -5,8 +5,11 @@
   "description": "An AI-powered assistant to help you find and fix bugs in your code.",
   "permissions": [
     "contextMenus",
-    "storage"
+    "storage",
+    "scripting",
+    "activeTab"
   ],
+  "default_popup": "index.html",
   "host_permissions": [
     "https://bugsquasher.online/"
   ],

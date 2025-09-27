@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Bug Squasher AI",
+  "version": "1.0.1",
+  "description": "An AI-powered assistant to help you find and fix bugs in your code.",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "scripting",
+    "activeTab"
+  ],  
+  "host_permissions": [
+    "https://bugsquasher.online/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "index.html"
+  },
+  "icons": {
+    "32": "icons/icon.svg"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://bugsquasher.online https://*.google.com https://*.googlesyndication.com;"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bug-squasher-ai@example.com"
+    }
+  }
+}

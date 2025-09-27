@@ -1,0 +1,30 @@
+# Node.js dependencies
+/node_modules
+
+# Vite build output
+/dist
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment variables
+# Exclude all .env files to keep sensitive keys private.
+# If you have a template .env file, you can explicitly un-ignore it
+# with a line like: !.env.example
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor directories
+.idea/
+.vscode/
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
