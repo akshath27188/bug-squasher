@@ -13,7 +13,7 @@
     "https://bugsquasher.online/"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "action": {
     "default_popup": "index.html"

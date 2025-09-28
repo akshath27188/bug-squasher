@@ -28,3 +28,14 @@ pnpm-debug.log*
 # OS-generated files
 .DS_Store
 Thumbs.db
+
+# Ignore TypeScript compiled JS files that sit next to .ts/.tsx
+*.js.map
+*.d.ts
+
+# Ignore .js files **only if a .ts/.tsx version exists**
+# Example: geminiService.ts + geminiService.js → ignore the .js
+# But server.js (no server.ts) will still be tracked.
+*.js
+!server.js
+!background.js
