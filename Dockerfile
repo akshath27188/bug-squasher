@@ -11,7 +11,7 @@ RUN npm install
 # Copy source and build
 COPY . .
 
-RUN rm -rf dist && npm run build
+RUN rm -rf /app/dist/* && npm run build
 
 # ----------------------------
 # Stage 2: Runtime container
@@ -28,8 +28,8 @@ COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev
 
 # Expose port Cloud Run expects
-ENV PORT=8081
-EXPOSE 8081
+ENV PORT=8080
+EXPOSE 8080
 
 # Start server
 CMD ["node", "server.js"]
