@@ -67,7 +67,7 @@ app.use((req, res, next) => {
 });
 // --- End of Fix ---
 
-app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
+
 
 // Check for API Key and initialize Gemini
 if (!process.env.GOOGLE_API_KEY) {
@@ -77,6 +77,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 // API endpoint to handle bug fix suggestions
 app.post('/api/get-fix', async (req, res) => {
+  console.log("Request received at /api/get-fix");
   const { buggyCode, bugDescription } = req.body;
 
   if (!buggyCode || !bugDescription) {
@@ -153,6 +154,7 @@ app.get('/robots.txt', (req, res) => {
 
 // For any other route, serve the index.html file for the React SPA
 // This should be the last route.
+app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
