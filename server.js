@@ -18,11 +18,27 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+// ✅ Put this at the top
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// ✅ Ensure preflight requests are handled
+app.options("*", cors());
 const PORT = process.env.PORT || 8080;
+
+// serve frontend build (dist) files
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 // Middleware
 app.use(express.json()); // To parse JSON bodies
-app.use(cors({ origin: '*' }));
+
 // --- Start of Fix ---
 // This custom middleware is crucial for our no-bundler React setup.
 // Browser 'import' statements might request '/App' instead of '/App.js'.
