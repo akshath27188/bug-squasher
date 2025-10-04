@@ -1,8 +1,5 @@
 // ====================================================================================
-// This is the backend server for the Bug Squasher AI browser extension.
-// It receives requests from the extension, securely adds the secret API key,
-// calls the Google Gemini API, and returns the result.
-// This server should be deployed to a service like Google Cloud Run.
+// Bug Squasher AI backend server
 // ====================================================================================
 
 import 'dotenv/config';
@@ -18,64 +15,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-// ✅ Put this at the top
+const PORT = process.env.PORT || 8080;
+
+// --- Global Middleware ---
 app.use(cors({
-  origin: "*",
+  origin: "*", // for prod, restrict to "https://bugsquasher.online"
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-
-// ✅ Ensure preflight requests are handled
 app.options("*", cors());
-const PORT = process.env.PORT || 8080;
 
-// serve frontend build (dist) files
-app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.json()); // parse JSON bodies
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
-
-// Middleware
-app.use(express.json()); // To parse JSON bodies
-
-// --- Start of Fix ---
-// This custom middleware is crucial for our no-bundler React setup.
-// Browser 'import' statements might request '/App' instead of '/App.js'.
-// This middleware checks if a .js file exists for such requests and rewrites the URL.
-// This ensures that our Express server sends JavaScript files with the correct
-// 'application/javascript' MIME type, instead of falling back to sending 'index.html'
-// which causes the "disallowed MIME type" error.
-app.use((req, res, next) => {
-  const reqPath = req.path;
-  // If the path already has an extension, or is an API call, do nothing.
-  if (path.extname(reqPath) || reqPath.startsWith('/api/')) {
-    return next();
-  }
-
-  const filePath = path.join(__dirname, 'dist', reqPath + '.js');
-  // Check if the corresponding .js file exists
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      // File doesn't exist, proceed to other routes (like the SPA fallback)
-      return next();
-    }
-    // File exists, rewrite the URL to include the .js extension
-    req.url += '.js';
-    next();
-  });
-});
-// --- End of Fix ---
-
-
-
-// Check for API Key and initialize Gemini
+// --- Check for API Key and init Gemini ---
 if (!process.env.GOOGLE_API_KEY) {
   throw new Error("API_KEY environment variable is not set");
 }
 const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
-// API endpoint to handle bug fix suggestions
+// --- API Routes ---
 app.post('/api/get-fix', async (req, res) => {
   console.log("Request received at /api/get-fix");
   const { buggyCode, bugDescription } = req.body;
@@ -129,13 +87,17 @@ ${bugDescription}
   }
 });
 
-// Explicitly handle SEO and Ad files
+// --- SEO / Special files ---
 app.get('/ads.txt', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'ads.txt'));
 });
 
+app.get('/robots.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'robots.txt'));
+});
+
 app.get('/sitemap.xml', (req, res) => {
-    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+  const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bugsquasher.online/</loc>
@@ -143,22 +105,33 @@ app.get('/sitemap.xml', (req, res) => {
     <priority>1.0</priority>
   </url>
 </urlset>`;
-    res.header('Content-Type', 'application/xml');
-    res.send(sitemapContent);
+  res.header('Content-Type', 'application/xml');
+  res.send(sitemapContent);
 });
 
-app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'robots.txt'));
+// --- JS Extension Rewrite Middleware ---
+app.use((req, res, next) => {
+  const reqPath = req.path;
+  if (path.extname(reqPath) || reqPath.startsWith('/api/')) {
+    return next();
+  }
+  const filePath = path.join(__dirname, 'dist', reqPath + '.js');
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) return next();
+    req.url += '.js';
+    next();
+  });
 });
 
+// --- Static frontend serving ---
+app.use(express.static(path.join(__dirname, "dist")));
 
-// For any other route, serve the index.html file for the React SPA
-// This should be the last route.
-app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// --- SPA fallback (last) ---
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
+// --- Start server ---
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
